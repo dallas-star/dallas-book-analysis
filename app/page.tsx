@@ -508,7 +508,7 @@ export default function Home() {
                   High Touch
                   <span className="group relative cursor-default">
                     <span className="text-slate-400 border border-slate-300 rounded-full w-3.5 h-3.5 inline-flex items-center justify-center text-[10px] leading-none">i</span>
-                    <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1.5 hidden group-hover:block bg-slate-800 text-white text-xs rounded px-2 py-1 whitespace-nowrap z-10">
+                    <span className="absolute left-0 top-full mt-1.5 hidden group-hover:block bg-white border border-slate-200 shadow-md text-slate-600 text-xs font-normal normal-case tracking-normal rounded-lg px-2.5 py-1.5 whitespace-nowrap z-50">
                       Monthly contact
                     </span>
                   </span>
