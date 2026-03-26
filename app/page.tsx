@@ -79,7 +79,7 @@ export default function Home() {
   const [filterResp, setFilterResp] = useState<string>("All");
   const [filterHealth, setFilterHealth] = useState<string>("All");
   const [search, setSearch] = useState("");
-  const [sortField, setSortField] = useState<"company" | "monthlySpend" | "lastReview" | "tier">("monthlySpend");
+  const [sortField, setSortField] = useState<"company" | "monthlySpend" | "lastReview" | "tier" | "highTouch" | "renewalDate" | "responsiveness" | "locations">("monthlySpend");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
 
   useEffect(() => {
@@ -228,6 +228,19 @@ export default function Home() {
           const order: Record<Tier, number> = { "Tier 1": 1, "Tier 2": 2, "Tier 3": 3, "—": 4 };
           av = order[getTier(a.monthlySpend)];
           bv = order[getTier(b.monthlySpend)];
+        } else if (sortField === "highTouch") {
+          av = a.highTouch ? 0 : 1;
+          bv = b.highTouch ? 0 : 1;
+        } else if (sortField === "renewalDate") {
+          av = a.renewalDate;
+          bv = b.renewalDate;
+        } else if (sortField === "responsiveness") {
+          const order: Record<string, number> = { Yes: 0, Sometimes: 1, No: 2, "": 3 };
+          av = order[a.responsiveness] ?? 3;
+          bv = order[b.responsiveness] ?? 3;
+        } else if (sortField === "locations") {
+          av = parseFloat(a.locations) || -1;
+          bv = parseFloat(b.locations) || -1;
         }
         if (av < bv) return sortDir === "asc" ? -1 : 1;
         if (av > bv) return sortDir === "asc" ? 1 : -1;
@@ -503,23 +516,30 @@ export default function Home() {
                 Last Review <SortIcon field="lastReview" />
               </th>
               <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide">In Contract</th>
-              <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide whitespace-nowrap">
+              <th className="px-4 py-3 cursor-pointer hover:text-slate-800 font-semibold text-xs uppercase tracking-wide whitespace-nowrap" onClick={() => toggleSort("highTouch")}>
                 <span className="inline-flex items-center gap-1">
                   High Touch
-                  <span className="group relative cursor-default">
+                  <span className="group relative cursor-default" onClick={(e) => e.stopPropagation()}>
                     <span className="text-slate-400 border border-slate-300 rounded-full w-3.5 h-3.5 inline-flex items-center justify-center text-[10px] leading-none">i</span>
                     <span className="absolute left-0 top-full mt-1.5 hidden group-hover:block bg-white border border-slate-200 shadow-md text-slate-600 text-xs font-normal normal-case tracking-normal rounded-lg px-2.5 py-1.5 whitespace-nowrap z-50">
                       Monthly contact
                     </span>
                   </span>
+                  <SortIcon field="highTouch" />
                 </span>
               </th>
-              <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide">Renewal Date</th>
+              <th className="px-4 py-3 cursor-pointer hover:text-slate-800 font-semibold text-xs uppercase tracking-wide" onClick={() => toggleSort("renewalDate")}>
+                Renewal Date <SortIcon field="renewalDate" />
+              </th>
               <th className="px-4 py-3 cursor-pointer hover:text-slate-800 font-semibold text-xs uppercase tracking-wide" onClick={() => toggleSort("monthlySpend")}>
                 Monthly Spend <SortIcon field="monthlySpend" />
               </th>
-              <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide">Locations</th>
-              <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide">Responsiveness</th>
+              <th className="px-4 py-3 cursor-pointer hover:text-slate-800 font-semibold text-xs uppercase tracking-wide" onClick={() => toggleSort("locations")}>
+                Locations <SortIcon field="locations" />
+              </th>
+              <th className="px-4 py-3 cursor-pointer hover:text-slate-800 font-semibold text-xs uppercase tracking-wide" onClick={() => toggleSort("responsiveness")}>
+                Responsiveness <SortIcon field="responsiveness" />
+              </th>
               <th className="px-4 py-3 cursor-pointer hover:text-slate-800 font-semibold text-xs uppercase tracking-wide" onClick={() => toggleSort("tier")}>
                 Tier <SortIcon field="tier" />
               </th>
