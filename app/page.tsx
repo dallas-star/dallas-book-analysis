@@ -503,7 +503,7 @@ export default function Home() {
                 Last Review <SortIcon field="lastReview" />
               </th>
               <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide">In Contract</th>
-              <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide">
+              <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide whitespace-nowrap">
                 <span className="inline-flex items-center gap-1">
                   High Touch
                   <span className="group relative cursor-default">
