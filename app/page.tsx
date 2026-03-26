@@ -164,7 +164,7 @@ export default function Home() {
       company: name.trim(),
       lastReview: "", renewalDate: "", csHealth: "", redFlag: "",
       city: "", pos: "", status: "", launchDate: "",
-      monthlySpend: "", locations: "", responsiveness: "", inContract: false,
+      monthlySpend: "", locations: "", responsiveness: "", inContract: false, suggestedSpend: null,
     };
     setAccounts((prev) => {
       const updated = [...prev, newAccount];
