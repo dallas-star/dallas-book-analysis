@@ -504,7 +504,7 @@ export default function Home() {
               </th>
               <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide">In Contract</th>
               <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide">
-                <span className="flex items-center gap-1">
+                <span className="inline-flex items-center gap-1">
                   High Touch
                   <span className="group relative cursor-default">
                     <span className="text-slate-400 border border-slate-300 rounded-full w-3.5 h-3.5 inline-flex items-center justify-center text-[10px] leading-none">i</span>
