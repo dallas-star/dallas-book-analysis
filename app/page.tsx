@@ -460,7 +460,7 @@ export default function Home() {
                 <span className="text-slate-500">
                   Matching accounts:{" "}
                   <span className="text-slate-900 font-semibold">{matched.length}</span>
-                  {label && <span className="text-slate-400 ml-2">({label})</span>}
+                  {label && <span className="text-slate-400 ml-2">{label}</span>}
                 </span>
                 <span className="text-slate-500">
                   Remaining if removed:{" "}
@@ -475,7 +475,7 @@ export default function Home() {
                       return !removed && tier !== "—";
                     }).length}
                   </span>
-                  {" "}accounts with spend entered
+                  {" "}accounts
                 </span>
               </div>
             );
