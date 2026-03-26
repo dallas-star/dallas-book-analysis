@@ -47,6 +47,7 @@ interface BookRow {
   Company: string;
   "Last Review": string;
   "In Contract": string;
+  "High Touch": string;
   "Renewal Date": string;
   "Monthly Spend": string;
   Locations: string;
@@ -99,6 +100,7 @@ export async function GET() {
       locations: book?.["Locations"] ?? "",
       responsiveness: book?.["Responsiveness"] ?? "",
       inContract: book?.["In Contract"] === "Y",
+      highTouch: book?.["High Touch"] === "Y",
     };
   });
 
