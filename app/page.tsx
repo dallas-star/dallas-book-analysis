@@ -540,7 +540,7 @@ export default function Home() {
               <th className="px-4 py-3 cursor-pointer hover:text-slate-800 font-semibold text-xs uppercase tracking-wide" onClick={() => toggleSort("responsiveness")}>
                 Responsive <SortIcon field="responsiveness" />
               </th>
-              <th className="px-4 py-3 cursor-pointer hover:text-slate-800 font-semibold text-xs uppercase tracking-wide" onClick={() => toggleSort("tier")}>
+              <th className="px-4 py-3 cursor-pointer hover:text-slate-800 font-semibold text-xs uppercase tracking-wide whitespace-nowrap" onClick={() => toggleSort("tier")}>
                 Tier <SortIcon field="tier" />
               </th>
               <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide">$/Location</th>
@@ -664,7 +664,7 @@ export default function Home() {
                     </select>
                   </td>
                   <td className="px-4 py-2.5">
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${TIER_COLORS[tier]}`}>
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap ${TIER_COLORS[tier]}`}>
                       {tier}
                     </span>
                   </td>
