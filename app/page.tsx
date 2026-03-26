@@ -505,7 +505,7 @@ export default function Home() {
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto rounded-xl border border-slate-200 shadow-sm">
+      <div className="overflow-x-auto overflow-y-auto max-h-[70vh] rounded-xl border border-slate-200 shadow-sm">
         <table className="w-full text-sm">
           <thead className="sticky top-0 z-10">
             <tr className="bg-slate-100 text-slate-500 text-left border-b border-slate-200">
