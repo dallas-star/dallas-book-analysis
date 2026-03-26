@@ -311,12 +311,6 @@ export default function Home() {
           </p>
         </div>
         <button
-          onClick={() => { setAddingNew(true); setNewName(""); }}
-          className="bg-slate-900 hover:bg-slate-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors shadow-sm"
-        >
-          + Add Company
-        </button>
-        <button
           onClick={() => {
             const headers = ["Company", "Last Review", "In Contract", "High Touch", "Renewal Date", "Monthly Spend", "Locations", "$/Location", "Responsiveness", "Tier"];
             const rows = accounts.map((a) => {
@@ -502,6 +496,12 @@ export default function Home() {
         <FilterSelect label="Responsiveness" value={filterResp} onChange={setFilterResp} options={["All", "Yes", "Sometimes", "No", ""]} />
         <FilterSelect label="CS Health" value={filterHealth} onChange={setFilterHealth} options={["All", "Great", "Good", "Decent", "Activation", "At Risk", ""]} />
         <span className="text-slate-400 text-sm self-center">{filtered.length} shown</span>
+        <button
+          onClick={() => { setAddingNew(true); setNewName(""); }}
+          className="ml-auto bg-slate-900 hover:bg-slate-700 text-white text-sm font-medium px-4 py-1.5 rounded-lg transition-colors shadow-sm"
+        >
+          + Add Company
+        </button>
       </div>
 
       {/* Table */}
