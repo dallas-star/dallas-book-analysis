@@ -82,7 +82,7 @@ export default function Home() {
   useEffect(() => {
     fetch("/api/accounts")
       .then((r) => r.json())
-      .then((data: Account[]) => {
+      .then((data: AccountData[]) => {
         const saved: Record<string, { monthlySpend: string; locations: string; responsiveness: Responsiveness; customName?: string }> =
           JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
         const deleted: string[] = JSON.parse(localStorage.getItem(DELETED_KEY) || "[]");
@@ -96,10 +96,10 @@ export default function Home() {
             company: saved[a.id]?.customName ?? a.company,
             monthlySpend: (saved[a.id]?.monthlySpend !== undefined && saved[a.id].monthlySpend !== "")
               ? saved[a.id].monthlySpend
-              : a.suggestedSpend !== null ? String(a.suggestedSpend) : "",
-            locations: saved[a.id]?.locations ?? "",
-            responsiveness: saved[a.id]?.responsiveness ?? "",
-            inContract: a.id in contractOverrides ? contractOverrides[a.id] : !!a.renewalDate,
+              : a.monthlySpend !== "" ? a.monthlySpend : (a.suggestedSpend !== null ? String(a.suggestedSpend) : ""),
+            locations: saved[a.id]?.locations ?? a.locations ?? "",
+            responsiveness: saved[a.id]?.responsiveness ?? a.responsiveness ?? "",
+            inContract: a.id in contractOverrides ? contractOverrides[a.id] : a.inContract,
           }));
 
         setAccounts([...merged, ...custom]);
