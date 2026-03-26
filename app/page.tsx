@@ -74,6 +74,7 @@ export default function Home() {
   const [newName, setNewName] = useState("");
   const [scenarioTiers, setScenarioTiers] = useState<Set<Tier>>(new Set(["Tier 3"]));
   const [scenarioResp, setScenarioResp] = useState<Set<Responsiveness>>(new Set(["No"]));
+  const [scenarioHighTouch, setScenarioHighTouch] = useState<"Any" | "Yes" | "No">("Any");
   const [filterTier, setFilterTier] = useState<string>("All");
   const [filterResp, setFilterResp] = useState<string>("All");
   const [filterHealth, setFilterHealth] = useState<string>("All");
@@ -236,9 +237,12 @@ export default function Home() {
 
   const stats = useMemo(() => {
     const all = accounts;
-    const t1 = all.filter((a) => getTier(a.monthlySpend) === "Tier 1").length;
-    const t2 = all.filter((a) => getTier(a.monthlySpend) === "Tier 2").length;
-    const t3 = all.filter((a) => getTier(a.monthlySpend) === "Tier 3").length;
+    const t1Accounts = all.filter((a) => getTier(a.monthlySpend) === "Tier 1");
+    const t2Accounts = all.filter((a) => getTier(a.monthlySpend) === "Tier 2");
+    const t3Accounts = all.filter((a) => getTier(a.monthlySpend) === "Tier 3");
+    const t1 = t1Accounts.length;
+    const t2 = t2Accounts.length;
+    const t3 = t3Accounts.length;
     const unset = all.filter((a) => getTier(a.monthlySpend) === "—").length;
     const unresponsive = all.filter((a) => a.responsiveness === "No").length;
     const sometimes = all.filter((a) => a.responsiveness === "Sometimes").length;
@@ -255,11 +259,18 @@ export default function Home() {
       };
     }
 
+    function htBreakdown(group: typeof all) {
+      return { ht: group.filter((a) => a.highTouch).length, notHt: group.filter((a) => !a.highTouch).length };
+    }
+
     return {
       t1, t2, t3, unset, unresponsive, sometimes, responsive, total: all.length, filled, respFilled,
       responsiveTiers: tierBreakdown("Yes"),
       sometimesTiers: tierBreakdown("Sometimes"),
       unresponsiveTiers: tierBreakdown("No"),
+      t1HighTouch: htBreakdown(t1Accounts),
+      t2HighTouch: htBreakdown(t2Accounts),
+      t3HighTouch: htBreakdown(t3Accounts),
     };
   }, [accounts]);
 
@@ -333,9 +344,9 @@ export default function Home() {
 
       {/* Tier Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-        <StatCard label="Tier 1 — $500+" value={stats.t1} sub={stats.filled > 0 ? `${Math.round((stats.t1 / stats.total) * 100)}% of book` : "—"} color="emerald" />
-        <StatCard label="Tier 2 — $350–$499" value={stats.t2} sub={stats.filled > 0 ? `${Math.round((stats.t2 / stats.total) * 100)}% of book` : "—"} color="yellow" />
-        <StatCard label="Tier 3 — <$350" value={stats.t3} sub={stats.filled > 0 ? `${Math.round((stats.t3 / stats.total) * 100)}% of book` : "—"} color="red" />
+        <StatCard label="Tier 1 — $500+" value={stats.t1} sub={stats.filled > 0 ? `${Math.round((stats.t1 / stats.total) * 100)}% of book` : "—"} color="emerald" highTouchBreakdown={stats.t1HighTouch} />
+        <StatCard label="Tier 2 — $350–$499" value={stats.t2} sub={stats.filled > 0 ? `${Math.round((stats.t2 / stats.total) * 100)}% of book` : "—"} color="yellow" highTouchBreakdown={stats.t2HighTouch} />
+        <StatCard label="Tier 3 — <$350" value={stats.t3} sub={stats.filled > 0 ? `${Math.round((stats.t3 / stats.total) * 100)}% of book` : "—"} color="red" highTouchBreakdown={stats.t3HighTouch} />
         <StatCard label="No Spend Entered" value={stats.unset} sub={`${stats.total - stats.unset} entered`} color="gray" />
       </div>
 
@@ -399,22 +410,43 @@ export default function Home() {
                 ))}
               </div>
             </div>
+            <div>
+              <p className="text-xs text-slate-400 uppercase tracking-wider font-semibold mb-2">High Touch</p>
+              <div className="flex gap-2">
+                {(["Any", "Yes", "No"] as const).map((v) => (
+                  <button
+                    key={v}
+                    onClick={() => setScenarioHighTouch(v)}
+                    className={`px-3 py-1 rounded-full text-xs font-semibold border transition-colors ${
+                      scenarioHighTouch === v
+                        ? v === "Yes" ? "bg-purple-100 border-purple-400 text-purple-700"
+                          : v === "No" ? "bg-slate-200 border-slate-400 text-slate-600"
+                          : "bg-blue-100 border-blue-400 text-blue-700"
+                        : "bg-white border-slate-300 text-slate-400 hover:border-slate-400"
+                    }`}
+                  >
+                    {v}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
           {(() => {
             const noTiers = scenarioTiers.size === 0;
             const noResp = scenarioResp.size === 0;
+            const noFilters = noTiers && noResp && scenarioHighTouch === "Any";
             const matched = accounts.filter((a) => {
+              if (noFilters) return false;
               const tier = getTier(a.monthlySpend);
-              const tierMatch = scenarioTiers.has(tier);
-              const respMatch = scenarioResp.has(a.responsiveness as Responsiveness);
-              if (noTiers && noResp) return false;
-              if (noTiers) return respMatch;
-              if (noResp) return tierMatch;
-              return tierMatch && respMatch;
+              const tierMatch = noTiers || scenarioTiers.has(tier);
+              const respMatch = noResp || scenarioResp.has(a.responsiveness as Responsiveness);
+              const htMatch = scenarioHighTouch === "Any" || (scenarioHighTouch === "Yes" ? a.highTouch : !a.highTouch);
+              return tierMatch && respMatch && htMatch;
             });
             const label = [
               scenarioTiers.size > 0 ? `[${[...scenarioTiers].join(" or ")}]` : null,
               scenarioResp.size > 0 ? `[${[...scenarioResp].join(" or ")}]` : null,
+              scenarioHighTouch !== "Any" ? `[High Touch = ${scenarioHighTouch}]` : null,
             ].filter(Boolean).join(" and ");
             return (
               <div className="flex flex-wrap gap-6 text-sm border-t border-slate-100 pt-4">
@@ -427,10 +459,12 @@ export default function Home() {
                   Remaining if removed:{" "}
                   <span className="text-emerald-600 font-semibold">
                     {accounts.filter((a) => {
+                      if (noFilters) return true;
                       const tier = getTier(a.monthlySpend);
-                      const tierMatch = scenarioTiers.has(tier);
-                      const respMatch = scenarioResp.has(a.responsiveness as Responsiveness);
-                      const removed = noTiers && noResp ? false : noTiers ? respMatch : noResp ? tierMatch : tierMatch && respMatch;
+                      const tierMatch = noTiers || scenarioTiers.has(tier);
+                      const respMatch = noResp || scenarioResp.has(a.responsiveness as Responsiveness);
+                      const htMatch = scenarioHighTouch === "Any" || (scenarioHighTouch === "Yes" ? a.highTouch : !a.highTouch);
+                      const removed = tierMatch && respMatch && htMatch;
                       return !removed && tier !== "—";
                     }).length}
                   </span>
@@ -631,12 +665,13 @@ export default function Home() {
   );
 }
 
-function StatCard({ label, value, sub, color, tierBreakdown }: {
+function StatCard({ label, value, sub, color, tierBreakdown, highTouchBreakdown }: {
   label: string;
   value: number;
   sub: string;
   color: string;
   tierBreakdown?: { t1: number; t2: number; t3: number };
+  highTouchBreakdown?: { ht: number; notHt: number };
 }) {
   const styles: Record<string, string> = {
     emerald: "bg-emerald-50 border-emerald-200 text-emerald-800",
@@ -660,7 +695,21 @@ function StatCard({ label, value, sub, color, tierBreakdown }: {
     <div className={`border rounded-xl p-4 shadow-sm ${s}`}>
       <p className="text-xs font-semibold uppercase tracking-wide opacity-70 mb-1">{label}</p>
       <p className="text-3xl font-fraunces font-bold">{value}</p>
-      <p className={`text-xs mt-1 mb-3 ${ss}`}>{sub}</p>
+      <p className={`text-xs mt-1 ${highTouchBreakdown ? "mb-2" : "mb-3"} ${ss}`}>{sub}</p>
+      {highTouchBreakdown && (
+        <div className="flex gap-2 mb-3">
+          <span className="flex items-center gap-1.5 bg-purple-100 border border-purple-300 text-purple-700 text-xs px-2 py-0.5 rounded-full">
+            <span className="font-semibold opacity-60">HT</span>
+            <span className="w-px h-3 bg-purple-300"></span>
+            <span className="font-bold">{highTouchBreakdown.ht}</span>
+          </span>
+          <span className="flex items-center gap-1.5 bg-slate-100 border border-slate-300 text-slate-500 text-xs px-2 py-0.5 rounded-full">
+            <span className="font-semibold opacity-60">Non-HT</span>
+            <span className="w-px h-3 bg-slate-300"></span>
+            <span className="font-bold">{highTouchBreakdown.notHt}</span>
+          </span>
+        </div>
+      )}
       {tierBreakdown && (
         <div className="flex gap-2 mt-auto">
           <span className="flex items-center gap-1.5 bg-emerald-100 border border-emerald-300 text-emerald-700 text-xs px-2 py-0.5 rounded-full">
