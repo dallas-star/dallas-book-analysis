@@ -365,7 +365,7 @@ export default function Home() {
 
       {/* Responsiveness Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <StatCard label="Responsive" value={stats.responsive} sub="will respond to persistant outreach" color="emerald" tierBreakdown={stats.responsiveTiers} />
+        <StatCard label="Responsive" value={stats.responsive} sub="will eventually respond to persistant outreach" color="emerald" tierBreakdown={stats.responsiveTiers} />
         <StatCard label="Sometimes" value={stats.sometimes} sub="rarely responds" color="yellow" tierBreakdown={stats.sometimesTiers} />
         <StatCard label="Unresponsive" value={stats.unresponsive} sub="would rather die than text or call you back" color="red" tierBreakdown={stats.unresponsiveTiers} />
       </div>
