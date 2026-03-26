@@ -503,7 +503,17 @@ export default function Home() {
                 Last Review <SortIcon field="lastReview" />
               </th>
               <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide">In Contract</th>
-              <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide">High Touch</th>
+              <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide">
+                <span className="flex items-center gap-1">
+                  High Touch
+                  <span className="group relative cursor-default">
+                    <span className="text-slate-400 border border-slate-300 rounded-full w-3.5 h-3.5 inline-flex items-center justify-center text-[10px] leading-none">i</span>
+                    <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1.5 hidden group-hover:block bg-slate-800 text-white text-xs rounded px-2 py-1 whitespace-nowrap z-10">
+                      Monthly contact
+                    </span>
+                  </span>
+                </span>
+              </th>
               <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide">Renewal Date</th>
               <th className="px-4 py-3 cursor-pointer hover:text-slate-800 font-semibold text-xs uppercase tracking-wide" onClick={() => toggleSort("monthlySpend")}>
                 Monthly Spend <SortIcon field="monthlySpend" />
