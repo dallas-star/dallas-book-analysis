@@ -507,7 +507,7 @@ export default function Home() {
       {/* Table */}
       <div className="overflow-x-auto rounded-xl border border-slate-200 shadow-sm">
         <table className="w-full text-sm">
-          <thead>
+          <thead className="sticky top-0 z-10">
             <tr className="bg-slate-100 text-slate-500 text-left border-b border-slate-200">
               <th className="px-4 py-3 cursor-pointer hover:text-slate-800 font-semibold text-xs uppercase tracking-wide" onClick={() => toggleSort("company")}>
                 Company <SortIcon field="company" />
