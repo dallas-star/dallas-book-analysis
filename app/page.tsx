@@ -80,6 +80,8 @@ export default function Home() {
   const [filterHealth, setFilterHealth] = useState<string>("All");
   const [search, setSearch] = useState("");
   const [sortField, setSortField] = useState<"company" | "monthlySpend" | "lastReview" | "tier" | "highTouch" | "renewalDate" | "responsiveness" | "locations">("monthlySpend");
+  const [colOrder, setColOrder] = useState(["lastReview", "inContract", "highTouch", "renewalDate", "monthlySpend", "locations", "responsiveness", "tier", "perLocation"]);
+  const [dragCol, setDragCol] = useState<string | null>(null);
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
 
   useEffect(() => {
@@ -512,63 +514,62 @@ export default function Home() {
               <th className="px-4 py-3 cursor-pointer hover:text-slate-800 font-semibold text-xs uppercase tracking-wide" onClick={() => toggleSort("company")}>
                 Company <SortIcon field="company" />
               </th>
-              <th className="px-4 py-3 cursor-pointer hover:text-slate-800 font-semibold text-xs uppercase tracking-wide" onClick={() => toggleSort("lastReview")}>
-                Last Review <SortIcon field="lastReview" />
-              </th>
-              <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide">In Contract</th>
-              <th className="px-4 py-3 cursor-pointer hover:text-slate-800 font-semibold text-xs uppercase tracking-wide whitespace-nowrap" onClick={() => toggleSort("highTouch")}>
-                <span className="inline-flex items-center gap-1">
-                  High Touch
-                  <span className="group relative cursor-default" onClick={(e) => e.stopPropagation()}>
-                    <span className="text-slate-400 border border-slate-300 rounded-full w-3.5 h-3.5 inline-flex items-center justify-center text-[10px] leading-none">i</span>
-                    <span className="absolute left-0 top-full mt-1.5 hidden group-hover:block bg-white border border-slate-200 shadow-md text-slate-600 text-xs font-normal normal-case tracking-normal rounded-lg px-2.5 py-1.5 whitespace-nowrap z-50">
-                      Monthly contact
+              {colOrder.map((col) => {
+                const base = "px-4 py-3 font-semibold text-xs uppercase tracking-wide select-none";
+                const sortable = `${base} cursor-pointer hover:text-slate-800`;
+                const dragging = dragCol === col ? "opacity-40" : "";
+                const dragProps = {
+                  draggable: true as const,
+                  onDragStart: () => setDragCol(col),
+                  onDragOver: (e: React.DragEvent) => e.preventDefault(),
+                  onDrop: () => {
+                    if (!dragCol || dragCol === col) return;
+                    setColOrder((prev) => {
+                      const next = [...prev];
+                      const from = next.indexOf(dragCol);
+                      const to = next.indexOf(col);
+                      next.splice(from, 1);
+                      next.splice(to, 0, dragCol);
+                      return next;
+                    });
+                    setDragCol(null);
+                  },
+                  onDragEnd: () => setDragCol(null),
+                };
+                const grip = <span className="text-slate-300 mr-1 cursor-grab active:cursor-grabbing">⠿</span>;
+                if (col === "lastReview") return <th key={col} {...dragProps} className={`${sortable} ${dragging}`} onClick={() => toggleSort("lastReview")}>{grip}Last Review <SortIcon field="lastReview" /></th>;
+                if (col === "inContract") return <th key={col} {...dragProps} className={`${base} ${dragging}`}>{grip}In Contract</th>;
+                if (col === "highTouch") return (
+                  <th key={col} {...dragProps} className={`${sortable} whitespace-nowrap ${dragging}`} onClick={() => toggleSort("highTouch")}>
+                    <span className="inline-flex items-center gap-1">
+                      {grip}High Touch
+                      <span className="group relative cursor-default" onClick={(e) => e.stopPropagation()}>
+                        <span className="text-slate-400 border border-slate-300 rounded-full w-3.5 h-3.5 inline-flex items-center justify-center text-[10px] leading-none">i</span>
+                        <span className="absolute left-0 top-full mt-1.5 hidden group-hover:block bg-white border border-slate-200 shadow-md text-slate-600 text-xs font-normal normal-case tracking-normal rounded-lg px-2.5 py-1.5 whitespace-nowrap z-50">Monthly contact</span>
+                      </span>
+                      <SortIcon field="highTouch" />
                     </span>
-                  </span>
-                  <SortIcon field="highTouch" />
-                </span>
-              </th>
-              <th className="px-4 py-3 cursor-pointer hover:text-slate-800 font-semibold text-xs uppercase tracking-wide" onClick={() => toggleSort("renewalDate")}>
-                Renewal Date <SortIcon field="renewalDate" />
-              </th>
-              <th className="px-4 py-3 cursor-pointer hover:text-slate-800 font-semibold text-xs uppercase tracking-wide" onClick={() => toggleSort("monthlySpend")}>
-                Monthly Spend <SortIcon field="monthlySpend" />
-              </th>
-              <th className="px-4 py-3 cursor-pointer hover:text-slate-800 font-semibold text-xs uppercase tracking-wide" onClick={() => toggleSort("locations")}>
-                Locations <SortIcon field="locations" />
-              </th>
-              <th className="px-4 py-3 cursor-pointer hover:text-slate-800 font-semibold text-xs uppercase tracking-wide" onClick={() => toggleSort("responsiveness")}>
-                Responsive <SortIcon field="responsiveness" />
-              </th>
-              <th className="px-4 py-3 cursor-pointer hover:text-slate-800 font-semibold text-xs uppercase tracking-wide whitespace-nowrap" onClick={() => toggleSort("tier")}>
-                Tier <SortIcon field="tier" />
-              </th>
-              <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide">$/Location</th>
+                  </th>
+                );
+                if (col === "renewalDate") return <th key={col} {...dragProps} className={`${sortable} ${dragging}`} onClick={() => toggleSort("renewalDate")}>{grip}Renewal Date <SortIcon field="renewalDate" /></th>;
+                if (col === "monthlySpend") return <th key={col} {...dragProps} className={`${sortable} ${dragging}`} onClick={() => toggleSort("monthlySpend")}>{grip}Monthly Spend <SortIcon field="monthlySpend" /></th>;
+                if (col === "locations") return <th key={col} {...dragProps} className={`${sortable} ${dragging}`} onClick={() => toggleSort("locations")}>{grip}Locations <SortIcon field="locations" /></th>;
+                if (col === "responsiveness") return <th key={col} {...dragProps} className={`${sortable} ${dragging}`} onClick={() => toggleSort("responsiveness")}>{grip}Responsive <SortIcon field="responsiveness" /></th>;
+                if (col === "tier") return <th key={col} {...dragProps} className={`${sortable} whitespace-nowrap ${dragging}`} onClick={() => toggleSort("tier")}>{grip}Tier <SortIcon field="tier" /></th>;
+                if (col === "perLocation") return <th key={col} {...dragProps} className={`${base} ${dragging}`}>{grip}$/Location</th>;
+                return null;
+              })}
               <th className="px-4 py-3"></th>
             </tr>
           </thead>
           <tbody>
             {addingNew && (
               <tr className="border-b border-blue-200 bg-blue-50">
-                <td className="px-4 py-2.5" colSpan={9}>
-                  <form
-                    onSubmit={(e) => { e.preventDefault(); addAccount(newName); }}
-                    className="flex items-center gap-2"
-                  >
-                    <input
-                      autoFocus
-                      type="text"
-                      value={newName}
-                      onChange={(e) => setNewName(e.target.value)}
-                      placeholder="Company name..."
-                      className="bg-white border border-blue-400 rounded-lg px-3 py-1.5 text-sm text-slate-800 focus:outline-none w-64"
-                    />
-                    <button type="submit" className="bg-slate-900 hover:bg-slate-700 text-white text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
-                      Add
-                    </button>
-                    <button type="button" onClick={() => setAddingNew(false)} className="text-slate-400 hover:text-slate-600 text-xs px-2 py-1.5">
-                      Cancel
-                    </button>
+                <td className="px-4 py-2.5" colSpan={colOrder.length + 2}>
+                  <form onSubmit={(e) => { e.preventDefault(); addAccount(newName); }} className="flex items-center gap-2">
+                    <input autoFocus type="text" value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="Company name..." className="bg-white border border-blue-400 rounded-lg px-3 py-1.5 text-sm text-slate-800 focus:outline-none w-64" />
+                    <button type="submit" className="bg-slate-900 hover:bg-slate-700 text-white text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">Add</button>
+                    <button type="button" onClick={() => setAddingNew(false)} className="text-slate-400 hover:text-slate-600 text-xs px-2 py-1.5">Cancel</button>
                   </form>
                 </td>
               </tr>
@@ -577,113 +578,30 @@ export default function Home() {
               const tier = getTier(a.monthlySpend);
               const isRenaming = renamingId === a.id;
               return (
-                <tr
-                  key={a.id}
-                  className={`border-b border-slate-100 ${i % 2 === 0 ? "bg-white" : "bg-slate-50/60"} hover:bg-blue-50/40 transition-colors group`}
-                >
+                <tr key={a.id} className={`border-b border-slate-100 ${i % 2 === 0 ? "bg-white" : "bg-slate-50/60"} hover:bg-blue-50/40 transition-colors group`}>
                   <td className="px-4 py-2.5 font-medium text-slate-800 max-w-[220px]">
                     {isRenaming ? (
                       <form onSubmit={(e) => { e.preventDefault(); renameAccount(a.id, renameValue); }} className="flex items-center gap-1">
-                        <input
-                          autoFocus
-                          type="text"
-                          value={renameValue}
-                          onChange={(e) => setRenameValue(e.target.value)}
-                          onBlur={() => renameAccount(a.id, renameValue || a.company)}
-                          onKeyDown={(e) => e.key === "Escape" && setRenamingId(null)}
-                          className="bg-white border border-blue-400 rounded px-2 py-0.5 text-sm text-slate-800 focus:outline-none w-48"
-                        />
+                        <input autoFocus type="text" value={renameValue} onChange={(e) => setRenameValue(e.target.value)} onBlur={() => renameAccount(a.id, renameValue || a.company)} onKeyDown={(e) => e.key === "Escape" && setRenamingId(null)} className="bg-white border border-blue-400 rounded px-2 py-0.5 text-sm text-slate-800 focus:outline-none w-48" />
                       </form>
                     ) : (
-                      <span
-                        className="truncate block cursor-pointer hover:text-blue-600 transition-colors"
-                        title={`${a.company} — click to rename`}
-                        onClick={() => { setRenamingId(a.id); setRenameValue(a.company); }}
-                      >
-                        {a.company}
-                      </span>
+                      <span className="truncate block cursor-pointer hover:text-blue-600 transition-colors" title={`${a.company} — click to rename`} onClick={() => { setRenamingId(a.id); setRenameValue(a.company); }}>{a.company}</span>
                     )}
                   </td>
-                  <td className="px-4 py-2.5 text-slate-500">{a.lastReview || "—"}</td>
+                  {colOrder.map((col) => {
+                    if (col === "lastReview") return <td key={col} className="px-4 py-2.5 text-slate-500">{a.lastReview || "—"}</td>;
+                    if (col === "inContract") return <td key={col} className="px-4 py-2.5"><button onClick={() => toggleInContract(a.id)} className={`px-3 py-0.5 rounded-full text-xs font-semibold border transition-colors ${a.inContract ? "bg-emerald-100 border-emerald-300 text-emerald-700" : "bg-slate-100 border-slate-300 text-slate-400 hover:border-slate-400"}`}>{a.inContract ? "Y" : "N"}</button></td>;
+                    if (col === "highTouch") return <td key={col} className="px-4 py-2.5"><button onClick={() => toggleHighTouch(a.id)} className={`px-3 py-0.5 rounded-full text-xs font-semibold border transition-colors ${a.highTouch ? "bg-purple-100 border-purple-300 text-purple-700" : "bg-slate-100 border-slate-300 text-slate-400 hover:border-slate-400"}`}>{a.highTouch ? "Y" : "N"}</button></td>;
+                    if (col === "renewalDate") return <td key={col} className="px-4 py-2.5 text-slate-500">{a.renewalDate || "—"}</td>;
+                    if (col === "monthlySpend") return <td key={col} className="px-4 py-2.5"><div className="flex items-center gap-1"><span className="text-slate-400">$</span><input type="number" value={a.monthlySpend} onChange={(e) => updateAccount(a.id, "monthlySpend", e.target.value)} placeholder="0" className="bg-white border border-slate-200 rounded-lg px-2 py-1 w-24 text-slate-800 focus:outline-none focus:border-blue-400 text-sm shadow-sm" /></div></td>;
+                    if (col === "locations") return <td key={col} className="px-4 py-2.5"><input type="number" value={a.locations} onChange={(e) => updateAccount(a.id, "locations", e.target.value)} placeholder="0" className="bg-white border border-slate-200 rounded-lg px-2 py-1 w-20 text-slate-800 focus:outline-none focus:border-blue-400 text-sm shadow-sm" /></td>;
+                    if (col === "responsiveness") return <td key={col} className="px-4 py-2.5"><select value={a.responsiveness} onChange={(e) => updateAccount(a.id, "responsiveness", e.target.value as Responsiveness)} className={`bg-white border border-slate-200 rounded-lg px-2 py-1 text-sm focus:outline-none focus:border-blue-400 shadow-sm font-medium ${RESP_COLORS[a.responsiveness]}`}><option value="" className="text-slate-400">—</option><option value="Yes" className="text-emerald-600">Yes</option><option value="Sometimes" className="text-amber-600">Sometimes</option><option value="No" className="text-red-600">No</option></select></td>;
+                    if (col === "tier") return <td key={col} className="px-4 py-2.5"><span className={`px-2 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap ${TIER_COLORS[tier]}`}>{tier}</span></td>;
+                    if (col === "perLocation") return <td key={col} className="px-4 py-2.5 text-slate-600 font-medium">{(() => { const s = parseFloat(a.monthlySpend); const l = parseFloat(a.locations); if (!s || !l) return <span className="text-slate-300">—</span>; return `$${(s / l).toFixed(2)}`; })()}</td>;
+                    return null;
+                  })}
                   <td className="px-4 py-2.5">
-                    <button
-                      onClick={() => toggleInContract(a.id)}
-                      className={`px-3 py-0.5 rounded-full text-xs font-semibold border transition-colors ${
-                        a.inContract
-                          ? "bg-emerald-100 border-emerald-300 text-emerald-700"
-                          : "bg-slate-100 border-slate-300 text-slate-400 hover:border-slate-400"
-                      }`}
-                    >
-                      {a.inContract ? "Y" : "N"}
-                    </button>
-                  </td>
-                  <td className="px-4 py-2.5">
-                    <button
-                      onClick={() => toggleHighTouch(a.id)}
-                      className={`px-3 py-0.5 rounded-full text-xs font-semibold border transition-colors ${
-                        a.highTouch
-                          ? "bg-purple-100 border-purple-300 text-purple-700"
-                          : "bg-slate-100 border-slate-300 text-slate-400 hover:border-slate-400"
-                      }`}
-                    >
-                      {a.highTouch ? "Y" : "N"}
-                    </button>
-                  </td>
-                  <td className="px-4 py-2.5 text-slate-500">{a.renewalDate || "—"}</td>
-                  <td className="px-4 py-2.5">
-                    <div className="flex items-center gap-1">
-                      <span className="text-slate-400">$</span>
-                      <input
-                        type="number"
-                        value={a.monthlySpend}
-                        onChange={(e) => updateAccount(a.id, "monthlySpend", e.target.value)}
-                        placeholder="0"
-                        className="bg-white border border-slate-200 rounded-lg px-2 py-1 w-24 text-slate-800 focus:outline-none focus:border-blue-400 text-sm shadow-sm"
-                      />
-                    </div>
-                  </td>
-                  <td className="px-4 py-2.5">
-                    <input
-                      type="number"
-                      value={a.locations}
-                      onChange={(e) => updateAccount(a.id, "locations", e.target.value)}
-                      placeholder="0"
-                      className="bg-white border border-slate-200 rounded-lg px-2 py-1 w-20 text-slate-800 focus:outline-none focus:border-blue-400 text-sm shadow-sm"
-                    />
-                  </td>
-                  <td className="px-4 py-2.5">
-                    <select
-                      value={a.responsiveness}
-                      onChange={(e) => updateAccount(a.id, "responsiveness", e.target.value as Responsiveness)}
-                      className={`bg-white border border-slate-200 rounded-lg px-2 py-1 text-sm focus:outline-none focus:border-blue-400 shadow-sm font-medium ${RESP_COLORS[a.responsiveness]}`}
-                    >
-                      <option value="" className="text-slate-400">—</option>
-                      <option value="Yes" className="text-emerald-600">Yes</option>
-                      <option value="Sometimes" className="text-amber-600">Sometimes</option>
-                      <option value="No" className="text-red-600">No</option>
-                    </select>
-                  </td>
-                  <td className="px-4 py-2.5">
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap ${TIER_COLORS[tier]}`}>
-                      {tier}
-                    </span>
-                  </td>
-                  <td className="px-4 py-2.5 text-slate-600 font-medium">
-                    {(() => {
-                      const spend = parseFloat(a.monthlySpend);
-                      const locs = parseFloat(a.locations);
-                      if (!spend || !locs || locs === 0) return <span className="text-slate-300">—</span>;
-                      return `$${(spend / locs).toFixed(2)}`;
-                    })()}
-                  </td>
-                  <td className="px-4 py-2.5">
-                    <button
-                      onClick={() => deleteAccount(a.id)}
-                      className="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-500 transition-all text-sm"
-                      title="Delete account"
-                    >
-                      ✕
-                    </button>
+                    <button onClick={() => deleteAccount(a.id)} className="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-500 transition-all text-sm" title="Delete account">✕</button>
                   </td>
                 </tr>
               );
