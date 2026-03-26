@@ -104,7 +104,7 @@ export default function Home() {
             locations: saved[a.id]?.locations ?? a.locations ?? "",
             responsiveness: saved[a.id]?.responsiveness ?? a.responsiveness ?? "",
             inContract: a.id in contractOverrides ? contractOverrides[a.id] : a.inContract,
-            highTouch: a.id in highTouchOverrides ? highTouchOverrides[a.id] : false,
+            highTouch: a.id in highTouchOverrides ? highTouchOverrides[a.id] : a.highTouch,
           }));
 
         setAccounts([...merged, ...custom]);
