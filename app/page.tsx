@@ -703,11 +703,6 @@ function StatCard({ label, value, sub, color, tierBreakdown, highTouchBreakdown 
             <span className="w-px h-3 bg-purple-300"></span>
             <span className="font-bold">{highTouchBreakdown.ht}</span>
           </span>
-          <span className="flex items-center gap-1.5 bg-slate-100 border border-slate-300 text-slate-500 text-xs px-2 py-0.5 rounded-full">
-            <span className="font-semibold opacity-60">Non-HT</span>
-            <span className="w-px h-3 bg-slate-300"></span>
-            <span className="font-bold">{highTouchBreakdown.notHt}</span>
-          </span>
         </div>
       )}
       {tierBreakdown && (
