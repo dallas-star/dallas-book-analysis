@@ -538,7 +538,7 @@ export default function Home() {
                 Locations <SortIcon field="locations" />
               </th>
               <th className="px-4 py-3 cursor-pointer hover:text-slate-800 font-semibold text-xs uppercase tracking-wide" onClick={() => toggleSort("responsiveness")}>
-                Responsiveness <SortIcon field="responsiveness" />
+                Responsive <SortIcon field="responsiveness" />
               </th>
               <th className="px-4 py-3 cursor-pointer hover:text-slate-800 font-semibold text-xs uppercase tracking-wide" onClick={() => toggleSort("tier")}>
                 Tier <SortIcon field="tier" />
