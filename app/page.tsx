@@ -23,6 +23,7 @@ interface AccountData extends Account {
   locations: string;
   responsiveness: Responsiveness;
   inContract: boolean;
+  highTouch: boolean;
 }
 
 type Tier = "Tier 1" | "Tier 2" | "Tier 3" | "—";
@@ -62,6 +63,7 @@ const STORAGE_KEY = "book-analysis-data";
 const DELETED_KEY = "book-analysis-deleted";
 const CUSTOM_KEY = "book-analysis-custom";
 const CONTRACT_KEY = "book-analysis-contract";
+const HIGH_TOUCH_KEY = "book-analysis-high-touch";
 
 export default function Home() {
   const [accounts, setAccounts] = useState<AccountData[]>([]);
@@ -88,6 +90,7 @@ export default function Home() {
         const deleted: string[] = JSON.parse(localStorage.getItem(DELETED_KEY) || "[]");
         const custom: AccountData[] = JSON.parse(localStorage.getItem(CUSTOM_KEY) || "[]");
         const contractOverrides: Record<string, boolean> = JSON.parse(localStorage.getItem(CONTRACT_KEY) || "{}");
+        const highTouchOverrides: Record<string, boolean> = JSON.parse(localStorage.getItem(HIGH_TOUCH_KEY) || "{}");
 
         const merged: AccountData[] = data
           .filter((a) => !deleted.includes(a.id))
@@ -100,6 +103,7 @@ export default function Home() {
             locations: saved[a.id]?.locations ?? a.locations ?? "",
             responsiveness: saved[a.id]?.responsiveness ?? a.responsiveness ?? "",
             inContract: a.id in contractOverrides ? contractOverrides[a.id] : a.inContract,
+            highTouch: a.id in highTouchOverrides ? highTouchOverrides[a.id] : false,
           }));
 
         setAccounts([...merged, ...custom]);
@@ -122,6 +126,17 @@ export default function Home() {
       const account = updated.find((a) => a.id === id);
       if (account) overrides[id] = account.inContract;
       localStorage.setItem(CONTRACT_KEY, JSON.stringify(overrides));
+      return updated;
+    });
+  }
+
+  function toggleHighTouch(id: string) {
+    setAccounts((prev) => {
+      const updated = prev.map((a) => a.id === id ? { ...a, highTouch: !a.highTouch } : a);
+      const overrides: Record<string, boolean> = JSON.parse(localStorage.getItem(HIGH_TOUCH_KEY) || "{}");
+      const account = updated.find((a) => a.id === id);
+      if (account) overrides[id] = account.highTouch;
+      localStorage.setItem(HIGH_TOUCH_KEY, JSON.stringify(overrides));
       return updated;
     });
   }
@@ -164,7 +179,7 @@ export default function Home() {
       company: name.trim(),
       lastReview: "", renewalDate: "", csHealth: "", redFlag: "",
       city: "", pos: "", status: "", launchDate: "",
-      monthlySpend: "", locations: "", responsiveness: "", inContract: false, suggestedSpend: null,
+      monthlySpend: "", locations: "", responsiveness: "", inContract: false, highTouch: false, suggestedSpend: null,
     };
     setAccounts((prev) => {
       const updated = [...prev, newAccount];
@@ -279,7 +294,7 @@ export default function Home() {
         </button>
         <button
           onClick={() => {
-            const headers = ["Company", "Last Review", "In Contract", "Renewal Date", "Monthly Spend", "Locations", "$/Location", "Responsiveness", "Tier"];
+            const headers = ["Company", "Last Review", "In Contract", "High Touch", "Renewal Date", "Monthly Spend", "Locations", "$/Location", "Responsiveness", "Tier"];
             const rows = accounts.map((a) => {
               const tier = getTier(a.monthlySpend);
               const spend = parseFloat(a.monthlySpend);
@@ -289,6 +304,7 @@ export default function Home() {
                 `"${a.company.replace(/"/g, '""')}"`,
                 a.lastReview,
                 a.inContract ? "Y" : "N",
+                a.highTouch ? "Y" : "N",
                 a.renewalDate,
                 a.monthlySpend,
                 a.locations,
@@ -453,6 +469,7 @@ export default function Home() {
                 Last Review <SortIcon field="lastReview" />
               </th>
               <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide">In Contract</th>
+              <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide">High Touch</th>
               <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide">Renewal Date</th>
               <th className="px-4 py-3 cursor-pointer hover:text-slate-800 font-semibold text-xs uppercase tracking-wide" onClick={() => toggleSort("monthlySpend")}>
                 Monthly Spend <SortIcon field="monthlySpend" />
@@ -534,6 +551,18 @@ export default function Home() {
                       }`}
                     >
                       {a.inContract ? "Y" : "N"}
+                    </button>
+                  </td>
+                  <td className="px-4 py-2.5">
+                    <button
+                      onClick={() => toggleHighTouch(a.id)}
+                      className={`px-3 py-0.5 rounded-full text-xs font-semibold border transition-colors ${
+                        a.highTouch
+                          ? "bg-purple-100 border-purple-300 text-purple-700"
+                          : "bg-slate-100 border-slate-300 text-slate-400 hover:border-slate-400"
+                      }`}
+                    >
+                      {a.highTouch ? "Y" : "N"}
                     </button>
                   </td>
                   <td className="px-4 py-2.5 text-slate-500">{a.renewalDate || "—"}</td>
