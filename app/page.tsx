@@ -354,9 +354,9 @@ export default function Home() {
 
       {/* Tier Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-        <StatCard label="Tier 1 — $500+" value={stats.t1} sub={stats.filled > 0 ? `${Math.round((stats.t1 / stats.total) * 100)}% of book` : "—"} color="emerald" highTouchBreakdown={stats.t1HighTouch} />
-        <StatCard label="Tier 2 — $350–$499" value={stats.t2} sub={stats.filled > 0 ? `${Math.round((stats.t2 / stats.total) * 100)}% of book` : "—"} color="yellow" highTouchBreakdown={stats.t2HighTouch} />
-        <StatCard label="Tier 3 — <$350" value={stats.t3} sub={stats.filled > 0 ? `${Math.round((stats.t3 / stats.total) * 100)}% of book` : "—"} color="red" highTouchBreakdown={stats.t3HighTouch} />
+        <StatCard label="Tier 1 — $500+ monthly spend" value={stats.t1} sub={stats.filled > 0 ? `${Math.round((stats.t1 / stats.total) * 100)}% of book` : "—"} color="emerald" highTouchBreakdown={stats.t1HighTouch} />
+        <StatCard label="Tier 2 — $350–$499 monthly spend" value={stats.t2} sub={stats.filled > 0 ? `${Math.round((stats.t2 / stats.total) * 100)}% of book` : "—"} color="yellow" highTouchBreakdown={stats.t2HighTouch} />
+        <StatCard label="Tier 3 — <$350 monthly spend" value={stats.t3} sub={stats.filled > 0 ? `${Math.round((stats.t3 / stats.total) * 100)}% of book` : "—"} color="red" highTouchBreakdown={stats.t3HighTouch} />
         <StatCard label="No Spend Entered" value={stats.unset} sub={`${stats.total - stats.unset} entered`} color="gray" />
       </div>
 
@@ -567,7 +567,7 @@ export default function Home() {
                 if (col === "monthlySpend") return <th key={col} {...dragProps} className={`${sortable} ${dragging} ${over}`} onClick={() => toggleSort("monthlySpend")}>{grip}Monthly Spend <SortIcon field="monthlySpend" /></th>;
                 if (col === "locations") return <th key={col} {...dragProps} className={`${sortable} ${dragging} ${over}`} onClick={() => toggleSort("locations")}>{grip}Locations <SortIcon field="locations" /></th>;
                 if (col === "responsiveness") return <th key={col} {...dragProps} className={`${sortable} ${dragging} ${over}`} onClick={() => toggleSort("responsiveness")}>{grip}Responsive <SortIcon field="responsiveness" /></th>;
-                if (col === "tier") return <th key={col} {...dragProps} className={`${sortable} whitespace-nowrap ${dragging} ${over}`} onClick={() => toggleSort("tier")}>{grip}Tier <SortIcon field="tier" /></th>;
+                if (col === "tier") return <th key={col} {...dragProps} className={`${sortable} whitespace-nowrap ${dragging} ${over}`} onClick={() => toggleSort("tier")}>{grip}$ Tier <SortIcon field="tier" /></th>;
                 if (col === "perLocation") return <th key={col} {...dragProps} className={`${base} ${dragging} ${over}`}>{grip}$/Location</th>;
                 return null;
               })}
