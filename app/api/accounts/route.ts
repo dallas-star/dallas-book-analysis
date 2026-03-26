@@ -76,7 +76,10 @@ export async function GET() {
   const bookData = loadBookData();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const accounts = (result.data as any[]).map((row) => {
+  const accounts = (result.data as any[]).filter((row) => {
+    const key = row["Company name"]?.trim().toLowerCase();
+    return key && bookData[key];
+  }).map((row) => {
     const key = row["Company name"]?.trim().toLowerCase();
     const book = bookData[key] ?? null;
 
