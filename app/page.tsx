@@ -266,14 +266,14 @@ export default function Home() {
     function tierBreakdown(resp: string) {
       const group = all.filter((a) => a.responsiveness === resp);
       return {
-        t1: group.filter((a) => getTier(a.monthlySpend) === "Tier 1").length,
-        t2: group.filter((a) => getTier(a.monthlySpend) === "Tier 2").length,
-        t3: group.filter((a) => getTier(a.monthlySpend) === "Tier 3").length,
+        t1: group.filter((a) => getTier(a.monthlySpend) === "Tier 1"),
+        t2: group.filter((a) => getTier(a.monthlySpend) === "Tier 2"),
+        t3: group.filter((a) => getTier(a.monthlySpend) === "Tier 3"),
       };
     }
 
     function htBreakdown(group: typeof all) {
-      return { ht: group.filter((a) => a.highTouch).length, notHt: group.filter((a) => !a.highTouch).length };
+      return { ht: group.filter((a) => a.highTouch), notHt: group.filter((a) => !a.highTouch) };
     }
 
     return {
@@ -695,13 +695,40 @@ export default function Home() {
   );
 }
 
+function BubbleWithDropdown({ label, accounts, bubbleClass, dropdownTitle }: {
+  label: string;
+  accounts: AccountData[];
+  bubbleClass: string;
+  dropdownTitle: string;
+}) {
+  const [open, setOpen] = useState(false);
+  if (accounts.length === 0) return null;
+  return (
+    <div className="relative" onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>
+      <span className={`flex items-center gap-1.5 text-xs px-2 py-0.5 rounded-full cursor-default select-none ${bubbleClass}`}>
+        <span className="font-semibold opacity-60">{label}</span>
+        <span className="w-px h-3 opacity-40 bg-current"></span>
+        <span className="font-bold">{accounts.length}</span>
+      </span>
+      {open && (
+        <div className="absolute left-0 top-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg z-50 min-w-[160px] max-h-48 overflow-y-auto">
+          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide px-3 pt-2 pb-1 border-b border-slate-100">{dropdownTitle}</p>
+          {accounts.map((a) => (
+            <p key={a.id} className="text-xs text-slate-700 px-3 py-1 hover:bg-slate-50">{a.company}</p>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function StatCard({ label, value, sub, color, tierBreakdown, highTouchBreakdown }: {
   label: string;
   value: number;
   sub: string;
   color: string;
-  tierBreakdown?: { t1: number; t2: number; t3: number };
-  highTouchBreakdown?: { ht: number; notHt: number };
+  tierBreakdown?: { t1: AccountData[]; t2: AccountData[]; t3: AccountData[] };
+  highTouchBreakdown?: { ht: AccountData[]; notHt: AccountData[] };
 }) {
   const styles: Record<string, string> = {
     emerald: "bg-emerald-50 border-emerald-200 text-emerald-800",
@@ -728,30 +755,14 @@ function StatCard({ label, value, sub, color, tierBreakdown, highTouchBreakdown 
       <p className={`text-xs mt-1 ${highTouchBreakdown ? "mb-2" : "mb-3"} ${ss}`}>{sub}</p>
       {highTouchBreakdown && (
         <div className="flex gap-2 mb-3">
-          <span className="flex items-center gap-1.5 bg-purple-100 border border-purple-300 text-purple-700 text-xs px-2 py-0.5 rounded-full">
-            <span className="font-semibold opacity-60">HT</span>
-            <span className="w-px h-3 bg-purple-300"></span>
-            <span className="font-bold">{highTouchBreakdown.ht}</span>
-          </span>
+          <BubbleWithDropdown label="HT" accounts={highTouchBreakdown.ht} bubbleClass="bg-purple-100 border border-purple-300 text-purple-700" dropdownTitle="High Touch" />
         </div>
       )}
       {tierBreakdown && (
         <div className="flex gap-2 mt-auto">
-          <span className="flex items-center gap-1.5 bg-emerald-100 border border-emerald-300 text-emerald-700 text-xs px-2 py-0.5 rounded-full">
-            <span className="font-semibold opacity-60">T1</span>
-            <span className="w-px h-3 bg-emerald-300"></span>
-            <span className="font-bold">{tierBreakdown.t1}</span>
-          </span>
-          <span className="flex items-center gap-1.5 bg-amber-100 border border-amber-300 text-amber-700 text-xs px-2 py-0.5 rounded-full">
-            <span className="font-semibold opacity-60">T2</span>
-            <span className="w-px h-3 bg-amber-300"></span>
-            <span className="font-bold">{tierBreakdown.t2}</span>
-          </span>
-          <span className="flex items-center gap-1.5 bg-red-100 border border-red-300 text-red-700 text-xs px-2 py-0.5 rounded-full">
-            <span className="font-semibold opacity-60">T3</span>
-            <span className="w-px h-3 bg-red-300"></span>
-            <span className="font-bold">{tierBreakdown.t3}</span>
-          </span>
+          <BubbleWithDropdown label="T1" accounts={tierBreakdown.t1} bubbleClass="bg-emerald-100 border border-emerald-300 text-emerald-700" dropdownTitle="Tier 1" />
+          <BubbleWithDropdown label="T2" accounts={tierBreakdown.t2} bubbleClass="bg-amber-100 border border-amber-300 text-amber-700" dropdownTitle="Tier 2" />
+          <BubbleWithDropdown label="T3" accounts={tierBreakdown.t3} bubbleClass="bg-red-100 border border-red-300 text-red-700" dropdownTitle="Tier 3" />
         </div>
       )}
     </div>
