@@ -18,7 +18,6 @@ function computeSuggestedSpend(): Record<string, number> {
   const sheet = workbook.Sheets[workbook.SheetNames[0]];
   const rows = XLSX.utils.sheet_to_json<XlsxRow>(sheet);
 
-  // Group by hubspot_id, storing { yearMonth (YYYYMM), amount }
   const byAccount: Record<string, { yearMonth: number; amount: number }[]> = {};
   for (const row of rows) {
     const id = String(row.hubspot_id);
@@ -31,15 +30,11 @@ function computeSuggestedSpend(): Record<string, number> {
   }
 
   const jan2026 = 202601;
-
   const result: Record<string, number> = {};
   for (const [id, entries] of Object.entries(byAccount)) {
     entries.sort((a, b) => a.yearMonth - b.yearMonth);
     const mostRecentYM = entries[entries.length - 1].yearMonth;
-
-    // Skip accounts whose most recent data is before Jan 2026
     if (mostRecentYM < jan2026) continue;
-
     const last3 = entries.slice(-3);
     const avg = last3.reduce((sum, e) => sum + e.amount, 0) / last3.length;
     result[id] = Math.round(avg * 100) / 100;
@@ -48,27 +43,61 @@ function computeSuggestedSpend(): Record<string, number> {
   return result;
 }
 
+interface BookRow {
+  Company: string;
+  "Last Review": string;
+  "In Contract": string;
+  "Renewal Date": string;
+  "Monthly Spend": string;
+  Locations: string;
+  Responsiveness: string;
+}
+
+function loadBookData(): Record<string, BookRow> {
+  const bookPath = path.join(process.cwd(), "book-analysis-2026-03-26.csv");
+  if (!fs.existsSync(bookPath)) return {};
+  const csvText = fs.readFileSync(bookPath, "utf-8");
+  const result = Papa.parse<BookRow>(csvText, { header: true, skipEmptyLines: true });
+  const map: Record<string, BookRow> = {};
+  for (const row of result.data) {
+    const key = row.Company?.trim().toLowerCase();
+    if (key) map[key] = row;
+  }
+  return map;
+}
+
 export async function GET() {
   const csvPath = path.join(process.cwd(), "hubspot-crm-exports-my-active-clients-2026-03-25.csv");
   const csvText = fs.readFileSync(csvPath, "utf-8");
-  const result = Papa.parse(csvText, { header: true, skipEmptyLines: true });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const result = Papa.parse<any>(csvText, { header: true, skipEmptyLines: true });
 
   const suggestedSpend = computeSuggestedSpend();
+  const bookData = loadBookData();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const accounts = (result.data as any[]).map((row) => ({
-    id: row["Record ID"],
-    company: row["Company name"],
-    lastReview: row["Date of Last Account Review"],
-    renewalDate: row["Next Texting Renewal Date"],
-    csHealth: row["CS Health"],
-    redFlag: row["Red Flag Type"],
-    city: row["City"],
-    pos: row["Point of Sale"],
-    status: row["Account Status"],
-    launchDate: row["Launch Date"],
-    suggestedSpend: suggestedSpend[row["Record ID"]] ?? null,
-  }));
+  const accounts = (result.data as any[]).map((row) => {
+    const key = row["Company name"]?.trim().toLowerCase();
+    const book = bookData[key] ?? null;
+
+    return {
+      id: row["Record ID"],
+      company: row["Company name"],
+      lastReview: book?.["Last Review"] ?? row["Date of Last Account Review"] ?? "",
+      renewalDate: row["Next Texting Renewal Date"],
+      csHealth: row["CS Health"],
+      redFlag: row["Red Flag Type"],
+      city: row["City"],
+      pos: row["Point of Sale"],
+      status: row["Account Status"],
+      launchDate: row["Launch Date"],
+      suggestedSpend: suggestedSpend[row["Record ID"]] ?? null,
+      monthlySpend: book?.["Monthly Spend"] ?? "",
+      locations: book?.["Locations"] ?? "",
+      responsiveness: book?.["Responsiveness"] ?? "",
+      inContract: book?.["In Contract"] === "Y",
+    };
+  });
 
   return NextResponse.json(accounts);
 }
