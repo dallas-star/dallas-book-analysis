@@ -80,7 +80,7 @@ export default function Home() {
   const [filterHealth, setFilterHealth] = useState<string>("All");
   const [search, setSearch] = useState("");
   const [sortField, setSortField] = useState<"company" | "monthlySpend" | "lastReview" | "tier" | "highTouch" | "renewalDate" | "responsiveness" | "locations">("monthlySpend");
-  const [colOrder, setColOrder] = useState(["lastReview", "inContract", "highTouch", "renewalDate", "monthlySpend", "locations", "responsiveness", "tier", "perLocation"]);
+  const [colOrder, setColOrder] = useState(["lastReview", "inContract", "renewalDate", "monthlySpend", "locations", "responsiveness", "highTouch", "tier", "perLocation"]);
   const [dragCol, setDragCol] = useState<string | null>(null);
   const [dragOverCol, setDragOverCol] = useState<string | null>(null);
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
